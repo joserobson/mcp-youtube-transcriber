@@ -1,104 +1,106 @@
 # 🎧 YouTube MP3 Downloader & Transcriber Skill
 
-Uma Skill / Ferramenta pronta para assistentes de IA agênticos (como **Claude Code**, **Antigravity CLI**, **Codex**) e também para uso direto via Linha de Comando (CLI).
+[🇺🇸 English](README.md) | [🇧🇷 Português](README-pt.md) | [🇪🇸 Español](README-es.md) | [🇨🇳 中文](README-zh.md)
 
-Ela permite baixar qualquer vídeo ou live do YouTube em formato MP3 de alta qualidade e transcrever automaticamente o conteúdo em texto (com timestamps) utilizando o modelo **OpenAI Whisper**.
+A ready-to-use Skill / Tool for agentic AI assistants (such as **Claude Code**, **Antigravity CLI**, **Codex**) and also for direct Command Line (CLI) usage.
+
+It allows you to download any YouTube video or livestream in high-quality MP3 format and automatically transcribe the content into text (with timestamps) using the **OpenAI Whisper** model.
 
 ---
 
-## 📁 Estrutura da Skill
+## 📁 Skill Structure
 
 ```text
 youtube-transcriber-skill/
-├── SKILL.md          # Arquivo de definição da Skill para o Claude / IA
-├── mcp_server.py     # Servidor MCP para integração nativa com IAs
-├── ytmp3.py          # Script principal em Python (CLI)
-├── requirements.txt  # Dependências do Python
-└── README.md         # Documentação e guia de uso
+├── SKILL.md          # Skill definition file for Claude / AI
+├── mcp_server.py     # MCP Server for native AI integration
+├── ytmp3.py          # Main Python script (CLI)
+├── requirements.txt  # Python dependencies
+└── README.md         # Documentation and user guide
 ```
 
 ---
 
-## 🛠️ Instalação das Dependências
+## 🛠️ Installing Dependencies
 
-Instale todas as dependências necessárias executando:
+Install all necessary dependencies by running:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-> **Dica:** O `yt-dlp` detecta automaticamente se você tem o `Node.js` instalado no sistema para contornar limitações de velocidade de download do YouTube.
+> **Tip:** `yt-dlp` automatically detects if you have `Node.js` installed on your system to bypass YouTube's download speed limits.
 
 ---
 
-## 🤖 Como Usar como Skill no Claude Code / Antigravity
+## 🤖 How to use as a Skill in Claude Code / Antigravity
 
-Para registrar como Skill no seu assistente de IA, copie esta pasta para o diretório de skills do seu projeto ou ambiente global:
+To register this as a Skill in your AI assistant, copy this folder to your project's or global skills directory:
 
-- **No projeto atual:** copie a pasta para `.claude/skills/youtube-transcriber`
-- **Globalmente no usuário:** copie para `~/.claude/skills/youtube-transcriber`
+- **Current project:** copy the folder to `.claude/skills/youtube-transcriber`
+- **Global user:** copy to `~/.claude/skills/youtube-transcriber`
 
-Depois disso, basta pedir ao assistente em linguagem natural:
-- *"Baixe e transcreva o vídeo https://youtube.com/live/..."*
-- *"Extraia o MP3 dessa live e me dê a transcrição com marcas de tempo."*
+After that, simply ask the assistant in natural language:
+- *"Download and transcribe the video https://youtube.com/live/..."*
+- *"Extract the MP3 from this livestream and give me the transcription with timestamps."*
 
 ---
 
-## 🔌 Como Usar via MCP (Model Context Protocol)
+## 🔌 How to use via MCP (Model Context Protocol)
 
-O projeto agora suporta nativamente o **MCP**! Isso significa que você pode plugar esta ferramenta diretamente no Claude Desktop ou no Cursor como ferramentas oficiais, sem precisar digitar comandos no terminal.
+The project now natively supports **MCP**! This means you can plug this tool directly into Claude Desktop or Cursor as official tools, without needing to type terminal commands.
 
-### No Claude Desktop
-1. Edite o arquivo de configuração do Claude Desktop:
+### In Claude Desktop
+1. Edit the Claude Desktop configuration file:
    - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
    - Mac: `~/Library/Application Support/Claude/claude_desktop_config.json`
-2. Adicione o servidor apontando para o script Python local:
+2. Add the server pointing to the local Python script:
 ```json
 {
   "mcpServers": {
     "youtube-transcriber": {
       "command": "python",
-      "args": ["CAMINHO_ABSOLUTO_AQUI/youtube-transcriber-skill/mcp_server.py"]
+      "args": ["ABSOLUTE_PATH_HERE/youtube-transcriber-skill/mcp_server.py"]
     }
   }
 }
 ```
-3. Reinicie o Claude Desktop. O Claude agora terá as ferramentas `download_youtube_audio`, `transcribe_audio`, etc.
+3. Restart Claude Desktop. Claude will now have the tools `download_youtube_audio`, `transcribe_audio`, etc.
 
-### No Cursor IDE
-1. Abra as Configurações do Cursor > **Features** > **MCP**.
-2. Clique em **+ Add New MCP Server**.
-3. Selecione o tipo **command**.
-4. Digite: `python CAMINHO_ABSOLUTO_AQUI/youtube-transcriber-skill/mcp_server.py`
+### In Cursor IDE
+1. Open Cursor Settings > **Features** > **MCP**.
+2. Click on **+ Add New MCP Server**.
+3. Select the type **command**.
+4. Type: `python ABSOLUTE_PATH_HERE/youtube-transcriber-skill/mcp_server.py`
 
 ---
 
-## 💻 Como Usar via Linha de Comando (CLI)
+## 💻 How to use via Command Line (CLI)
 
-Você também pode utilizar o script `ytmp3.py` diretamente:
+You can also use the `ytmp3.py` script directly:
 
-### 1. Transcrever Vídeo ou Live para Texto
+### 1. Transcribe Video or Livestream to Text
 ```bash
 python ytmp3.py transcribe "https://youtube.com/live/FL_ID" --timestamps -m small -l pt
 ```
 
-### 2. Apenas Baixar o MP3
+### 2. Just Download the MP3
 ```bash
-python ytmp3.py download "https://youtube.com/watch?v=XYZ" -o "minha_musica.mp3"
+python ytmp3.py download "https://youtube.com/watch?v=XYZ" -o "my_song.mp3"
 ```
 
-### 3. Cortar Trechos do MP3
+### 3. Cut MP3 Segments
 ```bash
-python ytmp3.py cut "minha_musica.mp3" 0:30 2:45 -o "corte.mp3"
+python ytmp3.py cut "my_song.mp3" 0:30 2:45 -o "cut.mp3"
 ```
 
-### 4. Modo Automático (Baixar + Cortar Trechos Específicos)
+### 4. Auto Mode (Download + Cut Specific Segments)
 ```bash
-python ytmp3.py auto "https://youtube.com/watch?v=XYZ" 0:00-1:30 4:00-end -o "editado.mp3"
+python ytmp3.py auto "https://youtube.com/watch?v=XYZ" 0:00-1:30 4:00-end -o "edited.mp3"
 ```
 
 ---
 
-## 📜 Licença
+## 📜 License
 
-Sinta-se à vontade para utilizar, modificar e subir para o seu GitHub!
+Feel free to use, modify, and push to your GitHub!
