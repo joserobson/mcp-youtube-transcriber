@@ -186,7 +186,7 @@ def download(url: str, output: str | None):
         final_name = output if output else (_sanitize(title) + ".mp3")
         final_path = _out(final_name)
         import shutil
-        shutil.move(tmp_out, final_path)
+        shutil.copyfile(tmp_out, final_path)
 
     audio = AudioSegment.from_mp3(final_path)
     console.print(
