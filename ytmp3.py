@@ -98,11 +98,25 @@ def _get_node_path() -> str | None:
 
 
 def _yt_dlp_cmd(extra_args: list[str], url: str) -> list[str]:
-    """Build base yt-dlp command with JS runtime if Node.js is available."""
+    """Build base yt-dlp command with JS runtime and anti-429 extractor args."""
     node_path = _get_node_path()
-    cmd = [sys.executable, "-X", "utf8", "-m", "yt_dlp"]
+    cmd = [sys.executable, "-X", "utf8", "-m", "yt_dlp", "-4"]
     if node_path:
         cmd += ["--js-runtimes", f"node:{node_path}", "--remote-components", "ejs:github"]
+
+    # Avoid HTTP 429 on webpage/initial_data endpoints and web client bot check
+    cmd += [
+        "--extractor-args",
+        "youtube:player_client=android;player_skip=webpage,initial_data,configs",
+    ]
+
+    cookies_file = os.environ.get("YTMP3_COOKIES") or str(Path(__file__).parent / "cookies.txt")
+    cookies_browser = os.environ.get("YTMP3_COOKIES_BROWSER")
+    if Path(cookies_file).is_file():
+        cmd += ["--cookies", cookies_file]
+    elif cookies_browser:
+        cmd += ["--cookies-from-browser", cookies_browser]
+
     cmd += extra_args + [url]
     return cmd
 
@@ -117,7 +131,6 @@ def _run(cmd: list[str]) -> subprocess.CompletedProcess:
 
 def get_video_title(url: str) -> str:
     """Get video title without downloading."""
-    import subprocess
     cmd = _yt_dlp_cmd(["--print", "title", "--no-playlist", "--no-download"], url)
     result = _run(cmd)
     out = result.stdout.decode("utf-8", errors="replace").strip()
@@ -126,13 +139,12 @@ def get_video_title(url: str) -> str:
 
 def download_audio(url: str, output_path: str) -> str:
     """Download audio from YouTube URL using yt-dlp via subprocess."""
-    import subprocess
-
     output_path = str(Path(output_path).with_suffix(""))  # yt-dlp adds extension
 
-    title = get_video_title(url)
-
     cmd = _yt_dlp_cmd([
+        "--print", "title",
+        "--no-simulate",
+        "--http-chunk-size", "10M",
         "--format", "bestaudio/best",
         "--output", output_path,
         "--extract-audio",
@@ -141,8 +153,9 @@ def download_audio(url: str, output_path: str) -> str:
         "--no-playlist",
     ], url)
 
-    _run(cmd)
-    return title
+    result = _run(cmd)
+    out = result.stdout.decode("utf-8", errors="replace").strip()
+    return out.splitlines()[0] if out else "audio"
 
 
 # ──────────────────────────────────────────────
